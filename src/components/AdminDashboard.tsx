@@ -257,6 +257,7 @@
         const tabConfig = {
           dashboard: { icon: "📊", label: "Dashboard" },
           volunteers: { icon: "👥", label: "Volunteers" },
+          tasks: { icon: "✅", label: "Task Approvals" },
           shelters: { icon: "🏠", label: "Shelters" }
         };
 
@@ -495,6 +496,140 @@
                       </table>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Task Approvals Tab */}
+              {activeTab === "tasks" && (
+                <div>
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="w-1 h-8 bg-gradient-to-b from-amber-500 to-amber-600 rounded-full"></div>
+                    <h2 className="text-2xl font-bold text-gray-900">Task Approval Center</h2>
+                    <div className="ml-auto bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-sm font-medium">
+                      {volunteers.filter(v => v.tasks?.some(t => t.status === "Pending Approval")).length} Pending
+                    </div>
+                  </div>
+
+                  {volunteers.filter(v => v.tasks?.some(t => t.status === "Pending Approval" || t.proof)).length === 0 ? (
+                    <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+                      <div className="text-6xl mb-4">✅</div>
+                      <p className="text-xl text-gray-500 font-medium">No tasks pending approval</p>
+                      <p className="text-gray-400 mt-2">All submitted tasks have been reviewed</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {volunteers.map(volunteer => 
+                        volunteer.tasks?.filter(task => task.status === "Pending Approval" || task.proof).map(task => (
+                          <div key={task.id} className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-amber-500 hover:shadow-xl transition-all duration-300">
+                            {/* Volunteer Info */}
+                            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+                              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                {volunteer.name?.charAt(0)?.toUpperCase() || "V"}
+                              </div>
+                              <div>
+                                <div className="font-bold text-gray-900">{volunteer.name}</div>
+                                <div className="text-sm text-gray-500">{volunteer.email}</div>
+                              </div>
+                            </div>
+
+                            {/* Task Details */}
+                            <div className="mb-4">
+                              <h3 className="font-bold text-lg text-gray-900 mb-2">{task.task}</h3>
+                              <p className="text-gray-600 text-sm mb-3">{task.description || "No description"}</p>
+                              
+                              <div className="space-y-2">
+                                <div className="flex items-center text-sm text-gray-600">
+                                  <span className="font-medium mr-2">📍 Location:</span>
+                                  {volunteer.shelter}
+                                </div>
+                                <div className="flex items-center text-sm text-gray-600">
+                                  <span className="font-medium mr-2">📅 Assigned:</span>
+                                  {new Date(task.assignedAt).toLocaleDateString()}
+                                </div>
+                                <div className="flex items-center text-sm">
+                                  <span className="font-medium mr-2">Status:</span>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    task.status === "Completed" ? "bg-green-100 text-green-800" :
+                                    task.status === "Pending Approval" ? "bg-amber-100 text-amber-800" :
+                                    "bg-gray-100 text-gray-800"
+                                  }`}>
+                                    {task.status}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Proof Section */}
+                            {task.proof && (
+                              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-2xl">📎</span>
+                                    <div>
+                                      <div className="font-medium text-gray-900">Proof Submitted</div>
+                                      <div className="text-sm text-gray-600">{task.proof}</div>
+                                    </div>
+                                  </div>
+                                  <a
+                                    href={`http://localhost:5000/uploads/${task.proof}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                                  >
+                                    👁️ View
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Approval Actions */}
+                            {task.status === "Pending Approval" && (
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={async () => {
+                                    if (!window.confirm(`Approve task "${task.task}" for ${volunteer.name}?`)) return;
+                                    try {
+                                      const res = await fetch(`http://localhost:5000/api/tasks/${task.id}/approve`, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ volunteerEmail: volunteer.email }),
+                                      });
+                                      if (res.ok) {
+                                        alert("✅ Task approved!");
+                                        await fetchVolunteers();
+                                      } else {
+                                        alert("❌ Failed to approve task");
+                                      }
+                                    } catch (err) {
+                                      console.error(err);
+                                      alert("❌ Error approving task");
+                                    }
+                                  }}
+                                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg font-medium"
+                                >
+                                  ✅ Approve Task
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    alert("Rejection feature can be added - task will remain in Pending Approval state");
+                                  }}
+                                  className="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg font-medium"
+                                >
+                                  ❌ Reject
+                                </button>
+                              </div>
+                            )}
+
+                            {task.status === "Completed" && (
+                              <div className="bg-green-50 rounded-lg p-3 text-center">
+                                <span className="text-green-700 font-medium">✅ Task Completed & Approved</span>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 

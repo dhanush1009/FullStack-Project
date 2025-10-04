@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { allDistrictsShelters } from "../data/allShelters";
 import { MapPin, Phone, Mail, Navigation, Copy, AlertTriangle, Shield, Users, Menu, X } from "lucide-react";
+import LeafletMap from "./LeafletMap";
 
 const containerStyle = {
   width: "100%",
@@ -400,110 +402,30 @@ const GoogleMapComponent = ({
   const [map, setMap] = useState(null);
   const [markers, setMarkers] = useState([]);
 
-  useEffect(() => {
-    if (!window.google) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=geometry`;
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeMap;
-      document.head.appendChild(script);
-    } else {
-      initializeMap();
-    }
-  }, []);
-
-  const initializeMap = () => {
-    const mapInstance = new window.google.maps.Map(mapRef.current, {
-      center: userLocation || selectedShelter?.location || { lat: 11.5, lng: 79.5 },
-      zoom: userLocation ? 10 : 7,
-      mapTypeId: 'roadmap',
-      styles: [
-        {
-          featureType: "water",
-          elementType: "geometry",
-          stylers: [{ color: "#e9e9e9" }, { lightness: 17 }]
-        },
-        {
-          featureType: "landscape",
-          elementType: "geometry",
-          stylers: [{ color: "#f5f5f5" }, { lightness: 20 }]
-        }
-      ]
-    });
-
-    setMap(mapInstance);
-  };
-
-  useEffect(() => {
-    if (!map) return;
-
-    // Clear existing markers
-    markers.forEach(marker => marker.setMap(null));
-    setMarkers([]);
-
-    const newMarkers = [];
-
-    // Add user location marker
-    if (userLocation) {
-      const userMarker = new window.google.maps.Marker({
-        position: userLocation,
-        map: map,
-        icon: {
-          url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-          scaledSize: new window.google.maps.Size(40, 40)
-        },
-        title: 'Your Location'
-      });
-      newMarkers.push(userMarker);
-      map.setCenter(userLocation);
-    }
-
-    // Add danger zone circle
-    if (window.google && window.google.maps.Circle) {
-      new window.google.maps.Circle({
-        strokeColor: '#FF0000',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: '#FF0000',
-        fillOpacity: 0.3,
-        map: map,
-        center: dangerZone.center,
-        radius: dangerZone.radius
-      });
-    }
-
-    // Add shelter markers
-    allShelters.forEach(shelter => {
-      const isNearest = nearestShelter?.id === shelter.id;
-      const marker = new window.google.maps.Marker({
-        position: shelter.location,
-        map: map,
-        icon: {
-          url: isNearest 
-            ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
-            : 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-          scaledSize: new window.google.maps.Size(32, 32)
-        },
-        title: shelter.name
-      });
-
-      marker.addListener('click', () => {
-        setSelectedShelter(shelter);
-      });
-
-      newMarkers.push(marker);
-    });
-
-    setMarkers(newMarkers);
-  }, [map, allShelters, userLocation, nearestShelter, selectedShelter]);
-
-  return <div ref={mapRef} style={containerStyle} className="w-full h-full" />;
+  return (
+    <div style={containerStyle} className="w-full h-full">
+      <LeafletMap
+        userLocation={userLocation}
+        selectedShelter={selectedShelter}
+        nearestShelter={nearestShelter}
+        onShelterClick={setSelectedShelter}
+      />
+    </div>
+  );
 };
 
 // Main Component
 const FindShelter = () => {
-  const allShelters = districtsData.flatMap((d) => d.shelters);
+  // Use the comprehensive shelter data from allShelters.ts
+  const allShelters = allDistrictsShelters.flatMap((d) =>
+    d.shelters.map((shelter) => ({
+      ...shelter,
+      district: d.district,
+      capacity: shelter.capacity ? `${shelter.capacity} people` : "N/A",
+      amenities: ["Medical Aid", "Food", "Water"]
+    }))
+  );
+  
   const [selectedShelter, setSelectedShelter] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [distances, setDistances] = useState({});
@@ -617,7 +539,7 @@ const FindShelter = () => {
 
           {/* Shelter List */}
           <div className="flex-1 overflow-y-auto p-4">
-            {districtsData.map((district) => (
+            {allDistrictsShelters.map((district) => (
               <div key={district.district} className="mb-6">
                 <h2 className="text-lg font-bold text-blue-700 mb-3 bg-blue-50 px-3 py-2 rounded">
                   {district.district}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { getShelterOptions } from "../data/allShelters";
 
 const animations = `
   @keyframes fadeInLeft {
@@ -221,20 +222,32 @@ const Signup = () => {
                   />
                 </div>
 
-                {/* Shelter */}
+                {/* Shelter Dropdown */}
                 <div>
                   <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#334155" }}>
-                    🏠 Preferred Shelter / Zone
+                    🏠 Preferred Shelter
                   </label>
-                  <input
-                    type="text"
+                  <select
                     name="shelter"
-                    placeholder="e.g., Zone A, Community Center"
                     value={form.shelter}
                     onChange={handleChange}
                     required
-                    style={{ width: "100%", padding: "10px 14px", border: "1px solid #cbd5e1", borderRadius: "8px" }}
-                  />
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: "8px",
+                      backgroundColor: "white",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <option value="">Select a shelter...</option>
+                    {getShelterOptions().map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </>
             )}
@@ -275,8 +288,8 @@ const Signup = () => {
                 cursor: "pointer",
                 transition: "background 0.3s ease",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#0f172a")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "#1e3a8a")}
+              onMouseEnter={(e) => ((e.target as HTMLButtonElement).style.backgroundColor = "#0f172a")}
+              onMouseLeave={(e) => ((e.target as HTMLButtonElement).style.backgroundColor = "#1e3a8a")}
             >
               🚨 Register Now
             </button>

@@ -14,7 +14,6 @@ const Index = () => {
       <main>
         <Hero />
         
-
         <EmergencyDashboard />
         
         <Features />

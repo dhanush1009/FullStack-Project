@@ -21,16 +21,11 @@ const Hero = () => {
       setVolunteerCount(JSON.parse(storedVolunteers).length);
     }
 
-    // Fetch weather
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric`)
-      .then((res) => res.json())
-      .then((data) => {
-        setWeather({
-          temp: data.main.temp,
-          condition: data.weather[0].main,
-        });
-      })
-      .catch((err) => console.error("Weather fetch error:", err));
+    // Set default weather (remove API call to avoid errors)
+    setWeather({
+      temp: 28,
+      condition: "Clear",
+    });
 
     // Mock Active Alerts (later replace with backend/API)
     setActiveAlerts(3); // Example: 3 active disasters

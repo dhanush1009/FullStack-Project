@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 
 import Index from "./pages/Index";
@@ -20,7 +19,7 @@ import Radio from "./components/Radio";
 import RadioPage from "./components/RadioPage";
 import DisasterGuardHero from "./components/DisasterGuardHero";
 import LearnMore from "./components/LearnMore";
-import Getprepared from "./components/GetPrepared";
+import Getprepared from "./components/Getprepared";
 import SOSButton from "./components/SOSButton";
 import VolunteerList from "./components/VolunteerList";
 import Resources from "./components/Resources";
@@ -57,14 +56,7 @@ const router = createBrowserRouter(
    
     { 
       path: "/volunteer-login", 
-      element: (
-        <Volunterlogin 
-          volunteers={[]} 
-          fetchVolunteers={() => {}} 
-          openAssignModal={() => {}} 
-          deleteVolunteer={() => {}} 
-        /> 
-      ),
+      element: <Volunterlogin />
     },
 
   ],
@@ -72,13 +64,15 @@ const router = createBrowserRouter(
     future: {
       v7_startTransition: true,
       v7_relativeSplatPath: true,
+      v7_fetcherPersist: true,
+      v7_normalizeFormMethod: true,
+      v7_partialHydration: true,
+      v7_skipActionErrorRevalidation: true,
     },
-  }
+  } as any
 );
 
 const App = () => {
-  const { t } = useTranslation();
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
