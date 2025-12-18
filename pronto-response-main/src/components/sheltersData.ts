@@ -1,0 +1,186 @@
+export default [
+  // Chennai
+  {
+    id: 1,
+    name: "Chennai Shelter 1",
+    address: "Marina Beach Road, Chennai",
+    lat: 13.0490,
+    lng: 80.2824,
+  },
+  {
+    id: 2,
+    name: "Chennai Shelter 2",
+    address: "Besant Nagar, Chennai",
+    lat: 13.0005,
+    lng: 80.2662,
+  },
+  {
+    id: 3,
+    name: "Chennai Shelter 3",
+    address: "Royapuram, Chennai",
+    lat: 13.1228,
+    lng: 80.2935,
+  },
+  {
+    id: 4,
+    name: "Chennai Shelter 4",
+    address: "Tondiarpet, Chennai",
+    lat: 13.1310,
+    lng: 80.2902,
+  },
+  {
+    id: 5,
+    name: "Chennai Shelter 5",
+    address: "Thiruvanmiyur, Chennai",
+    lat: 12.9811,
+    lng: 80.2593,
+  },
+
+  // Cuddalore
+  {
+    id: 6,
+    name: "Cuddalore Shelter 1",
+    address: "Silver Beach Road, Cuddalore",
+    lat: 11.7365,
+    lng: 79.7784,
+  },
+  {
+    id: 7,
+    name: "Cuddalore Shelter 2",
+    address: "Old Town, Cuddalore",
+    lat: 11.7402,
+    lng: 79.7672,
+  },
+  {
+    id: 8,
+    name: "Cuddalore Shelter 3",
+    address: "Kurinjipadi, Cuddalore",
+    lat: 11.5673,
+    lng: 79.5913,
+  },
+  {
+    id: 9,
+    name: "Cuddalore Shelter 4",
+    address: "Bhuvanagiri, Cuddalore",
+    lat: 11.4591,
+    lng: 79.6350,
+  },
+  {
+    id: 10,
+    name: "Cuddalore Shelter 5",
+    address: "Panruti, Cuddalore",
+    lat: 11.7750,
+    lng: 79.5528,
+  },
+
+  // Nagapattinam
+  {
+    id: 11,
+    name: "Nagapattinam Shelter 1",
+    address: "Velankanni Beach, Nagapattinam",
+    lat: 10.6833,
+    lng: 79.8500,
+  },
+  {
+    id: 12,
+    name: "Nagapattinam Shelter 2",
+    address: "Keezhaiyur, Nagapattinam",
+    lat: 10.7160,
+    lng: 79.8465,
+  },
+  {
+    id: 13,
+    name: "Nagapattinam Shelter 3",
+    address: "Tharangambadi, Nagapattinam",
+    lat: 11.0241,
+    lng: 79.8563,
+  },
+  {
+    id: 14,
+    name: "Nagapattinam Shelter 4",
+    address: "Vedaranyam, Nagapattinam",
+    lat: 10.3700,
+    lng: 79.8500,
+  },
+  {
+    id: 15,
+    name: "Nagapattinam Shelter 5",
+    address: "Sirkazhi, Nagapattinam",
+    lat: 11.2360,
+    lng: 79.7320,
+  },
+
+  // Thoothukudi
+  {
+    id: 16,
+    name: "Thoothukudi Shelter 1",
+    address: "Port Area, Thoothukudi",
+    lat: 8.7815,
+    lng: 78.1348,
+  },
+  {
+    id: 17,
+    name: "Thoothukudi Shelter 2",
+    address: "New Colony, Thoothukudi",
+    lat: 8.8053,
+    lng: 78.1323,
+  },
+  {
+    id: 18,
+    name: "Thoothukudi Shelter 3",
+    address: "Muthiahpuram, Thoothukudi",
+    lat: 8.7764,
+    lng: 78.1467,
+  },
+  {
+    id: 19,
+    name: "Thoothukudi Shelter 4",
+    address: "South Beach Road, Thoothukudi",
+    lat: 8.7923,
+    lng: 78.1302,
+  },
+  {
+    id: 20,
+    name: "Thoothukudi Shelter 5",
+    address: "Meelavittan, Thoothukudi",
+    lat: 8.8375,
+    lng: 78.1534,
+  },
+
+  // Rameswaram
+  {
+    id: 21,
+    name: "Rameswaram Shelter 1",
+    address: "Agni Theertham Road, Rameswaram",
+    lat: 9.2885,
+    lng: 79.3131,
+  },
+  {
+    id: 22,
+    name: "Rameswaram Shelter 2",
+    address: "Pamban, Rameswaram",
+    lat: 9.2776,
+    lng: 79.1996,
+  },
+  {
+    id: 23,
+    name: "Rameswaram Shelter 3",
+    address: "Ramanathapuram Rd, Rameswaram",
+    lat: 9.2912,
+    lng: 79.3106,
+  },
+  {
+    id: 24,
+    name: "Rameswaram Shelter 4",
+    address: "Rameswaram Bus Stand Area",
+    lat: 9.2876,
+    lng: 79.3123,
+  },
+  {
+    id: 25,
+    name: "Rameswaram Shelter 5",
+    address: "Mandapam, near Rameswaram",
+    lat: 9.2783,
+    lng: 79.1235,
+  },
+];
