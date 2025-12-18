@@ -31,3 +31,4 @@ backend/.env
 # Uploads
 uploads/
 backend/uploads/
+.vercel
