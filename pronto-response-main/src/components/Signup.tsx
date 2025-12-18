@@ -33,8 +33,8 @@ const Signup = () => {
 
   // Get backend URL (same logic as other components)
   const getBackendUrl = async () => {
-    // Try common backend ports
-    const commonPorts = ['5000', '5001', '3000', '8000'];
+    // Try common backend ports (including 5003 which is current server port)
+    const commonPorts = ['5003', '5002', '5001', '5000', '3000', '8000'];
     for (const port of commonPorts) {
       try {
         const testUrl = `http://localhost:${port}`;

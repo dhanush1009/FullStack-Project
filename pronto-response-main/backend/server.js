@@ -87,14 +87,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.resolve('./backend/uploads')));
 
 // --- MongoDB connection ---
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/disasterApp";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sdhanush1009_db_user:Dhanush%402005@cluster0.9f0wcxu.mongodb.net/Disaster-Management?retryWrites=true&w=majority&appName=Cluster0";
 mongoose
   .connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB error", err));
+  .then(() => {
+    console.log("✅ MongoDB Atlas connected successfully!");
+    console.log("📊 Database: Disaster-Management");
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    console.error("💡 Check: 1) Password is correct, 2) IP whitelist allows access");
+  });
 
 // --- Nodemailer transporter (FIXED CONFIGURATION) ---
 const EMAIL_USER = process.env.EMAIL_USER;
@@ -164,7 +170,13 @@ const upload = multer({ storage });
 app.post("/api/signup", async (req, res) => {
   const { name, email, password, role } = req.body;
   try {
-    console.log(`📝 Signup request:`, { name, email, role });
+    console.log("=" .repeat(50));
+    console.log(`📝 NEW SIGNUP REQUEST`);
+    console.log(`👤 Name: ${name}`);
+    console.log(`📧 Email: ${email}`);
+    console.log(`🎭 Role: ${role}`);
+    console.log(`🔗 MongoDB Status:`, mongoose.connection.readyState === 1 ? "✅ Connected" : "❌ Disconnected");
+    console.log("=" .repeat(50));
 
     // Validate required fields
     if (!name || !email || !password || !role) {
@@ -199,7 +211,10 @@ app.post("/api/signup", async (req, res) => {
     }
 
     // Hash password and create user
+    console.log("🔐 Hashing password...");
     const hashedPassword = await bcrypt.hash(password, 10);
+    
+    console.log("📦 Creating user object...");
     const user = new User({ 
       name: name.trim(), 
       email: email.toLowerCase().trim(), 
@@ -207,8 +222,15 @@ app.post("/api/signup", async (req, res) => {
       role 
     });
     
+    console.log("💾 Saving to MongoDB Atlas...");
     await user.save();
-    console.log(`✅ User created successfully: ${email} (${role})`);
+    console.log(`✅ User saved to database!`);
+    console.log(`📊 User ID: ${user._id}`);
+    console.log(`📧 Email: ${user.email}`);
+    console.log(`🎭 Role: ${user.role}`);
+    console.log(`🗄️  Collection: users`);
+    console.log(`🌍 Database: ${mongoose.connection.db.databaseName}`);
+    console.log("=" .repeat(50));
     
     res.status(201).json({ 
       msg: "Account created successfully! You can now log in.",
@@ -220,7 +242,12 @@ app.post("/api/signup", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("❌ Signup error:", err);
+    console.error("=" .repeat(50));
+    console.error("❌ SIGNUP ERROR:");
+    console.error("Error message:", err.message);
+    console.error("Error code:", err.code);
+    console.error("Full error:", err);
+    console.error("=" .repeat(50));
     
     // Handle duplicate key error (in case unique constraint fails)
     if (err.code === 11000) {

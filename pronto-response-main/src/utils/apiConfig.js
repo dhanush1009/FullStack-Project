@@ -4,8 +4,8 @@ import path from 'path';
 
 // Default configuration
 const DEFAULT_CONFIG = {
-  port: 5000,
-  url: 'http://localhost:5000'
+  port: 5003,
+  url: 'http://localhost:5003'
 };
 
 // Function to read server configuration
