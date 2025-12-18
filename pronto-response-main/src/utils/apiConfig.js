@@ -1,31 +1,26 @@
 // API Configuration utility to automatically detect backend port
-import fs from 'fs';
-import path from 'path';
+
+// Get API URL based on environment
+const getApiUrl = () => {
+  // Production: Use environment variable (set in Vercel)
+  if (import.meta.env.PROD && import.meta.env.VITE_API_URL) {
+    console.log('📡 Using production API:', import.meta.env.VITE_API_URL);
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Development: Use localhost
+  console.log('📡 Using local development API: http://localhost:5003');
+  return 'http://localhost:5003';
+};
 
 // Default configuration
 const DEFAULT_CONFIG = {
   port: 5003,
-  url: 'http://localhost:5003'
+  url: getApiUrl()
 };
 
 // Function to read server configuration
 const getServerConfig = () => {
-  try {
-    // Try to read the server config file from backend directory
-    const configPath = path.join(process.cwd(), '..', 'backend', 'server-config.json');
-    
-    if (fs.existsSync(configPath)) {
-      const configData = fs.readFileSync(configPath, 'utf8');
-      const config = JSON.parse(configData);
-      console.log(`📡 Found backend server running on port ${config.port}`);
-      return config;
-    }
-  } catch (error) {
-    console.warn('⚠️  Could not read server config, using default:', error.message);
-  }
-  
-  // Fallback to default configuration
-  console.log('📡 Using default backend configuration');
   return DEFAULT_CONFIG;
 };
 
@@ -44,6 +39,12 @@ const testConnection = async (url) => {
 
 // Function to find active backend server
 const findActiveBackend = async () => {
+  // In production, always use the configured URL
+  if (import.meta.env.PROD) {
+    return DEFAULT_CONFIG;
+  }
+  
+  // In development, try to find the backend
   const config = getServerConfig();
   
   // Test the configured URL first
@@ -52,7 +53,7 @@ const findActiveBackend = async () => {
   }
   
   // If configured URL doesn't work, try common ports
-  const commonPorts = [5000, 5001, 5002, 5003, 3000, 8000];
+  const commonPorts = [5003, 5002, 5001, 5000, 3000, 8000];
   
   for (const port of commonPorts) {
     const testUrl = `http://localhost:${port}`;
