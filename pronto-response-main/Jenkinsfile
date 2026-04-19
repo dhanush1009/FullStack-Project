@@ -46,10 +46,9 @@ pipeline {
             steps {
                 dir('pronto-response-main') {
                     echo 'Starting services...'
-                    // Create an empty .env file so docker-compose doesn't crash from the missing gitignored file
                     sh 'touch backend/.env'
-                    sh 'docker-compose down' // Remove old containers
-                    sh 'docker-compose up -d'
+                    // We only spin up backend and frontend so Jenkins doesn't kill itself!
+                    sh 'docker-compose up -d --build backend frontend'
                 }
             }
         }
