@@ -24,7 +24,9 @@ services:
     restart: unless-stopped
 
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: .
+      dockerfile: Jenkins.Dockerfile
     container_name: disaster-mgmt-jenkins
     user: root
     ports:
