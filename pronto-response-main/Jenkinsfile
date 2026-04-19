@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        // Environment variables for Docker Hub registry
-        DOCKER_CREDS = credentials('docker-hub-credentials') // Replace with your Jenkins credentials ID
-        DOCKER_USERNAME = "${DOCKER_CREDS_USR}"
-        DOCKER_PASSWORD = "${DOCKER_CREDS_PSW}"
+        // Disabled Docker Hub push for now to avoid the credentials crash!
+        // DOCKER_CREDS = credentials('docker-hub-credentials')
+        // DOCKER_USERNAME = "${DOCKER_CREDS_USR}"
+        // DOCKER_PASSWORD = "${DOCKER_CREDS_PSW}"
         
-        BACKEND_IMAGE = "yourdockerhubusername/disaster-mgmt-backend:${env.BUILD_ID}"
-        FRONTEND_IMAGE = "yourdockerhubusername/disaster-mgmt-frontend:${env.BUILD_ID}"
+        BACKEND_IMAGE = "pronto-backend:${env.BUILD_ID}"
+        FRONTEND_IMAGE = "pronto-frontend:${env.BUILD_ID}"
     }
 
     stages {
@@ -28,24 +28,19 @@ pipeline {
 
                 echo 'Building Frontend Image...'
                 dir('frontend') {
-                    // Vite requires robust build context, we use legacy-peer-deps inside Dockerfile
                     sh "docker build -t ${FRONTEND_IMAGE} ."
                 }
             }
         }
 
-        stage('Push Docker Images') {
-            steps {
-                echo 'Logging into Docker Hub...'
-                sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
-
-                echo 'Pushing Backend Image...'
-                sh "docker push ${BACKEND_IMAGE}"
-
-                echo 'Pushing Frontend Image...'
-                sh "docker push ${FRONTEND_IMAGE}"
-            }
-        }
+        // stage('Push Docker Images') {
+        //     steps {
+        //         echo 'Logging into Docker Hub...'
+        //         sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
+        //         sh "docker push ${BACKEND_IMAGE}"
+        //         sh "docker push ${FRONTEND_IMAGE}"
+        //     }
+        // }
 
         stage('Deploy locally using Docker Compose') {
             steps {
