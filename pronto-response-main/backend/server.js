@@ -86,6 +86,11 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.resolve('./backend/uploads')));
 
+// Add a root route so Docker Desktop clicks show output
+app.get('/', (req, res) => {
+  res.send('<h1>Disaster Management Backend is Running</h1><p>Navigate to the frontend application to interact with the system.</p>');
+});
+
 // --- MongoDB connection ---
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sdhanush1009_db_user:Dhanush%402005@cluster0.9f0wcxu.mongodb.net/Disaster-Management?retryWrites=true&w=majority&appName=Cluster0";
 mongoose
@@ -132,14 +137,28 @@ transporter.verify((error, success) => {
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 
-let client;
-if (twilioAccountSid && twilioAuthToken) {
-  client = twilio(twilioAccountSid, twilioAuthToken);
-  console.log("✅ Twilio SMS configured");
+let client = null;
+const isValidTwilioConfig =
+  typeof twilioAccountSid === 'string' &&
+  twilioAccountSid.startsWith('AC') &&
+  typeof twilioAuthToken === 'string' &&
+  twilioAuthToken.length > 0 &&
+  !twilioAccountSid.includes('your-twilio') &&
+  !twilioAuthToken.includes('your-twilio');
+
+if (isValidTwilioConfig) {
+  try {
+    client = twilio(twilioAccountSid, twilioAuthToken);
+    console.log("✅ Twilio SMS configured");
+  } catch (twilioError) {
+    console.error("❌ Invalid Twilio configuration:", twilioError.message);
+    console.log("⚠️ Twilio features disabled due to invalid credentials");
+    client = null;
+  }
 } else {
-  console.log("⚠️ Twilio credentials not configured - SMS features disabled");
-  client = null;
+  console.log("⚠️ Twilio credentials not configured or invalid - SMS features disabled");
 }
+
 // Set transporter and Twilio client for emergency routes
 setTransporter(transporter);
 if (client) {
