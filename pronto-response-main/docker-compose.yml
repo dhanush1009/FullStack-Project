@@ -41,6 +41,9 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: disaster-mgmt-prometheus
+    depends_on:
+      - backend
+      - jenkins
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
@@ -50,6 +53,13 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: disaster-mgmt-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
     depends_on:
@@ -58,3 +68,4 @@ services:
 
 volumes:
   jenkins_home:
+  grafana_data:

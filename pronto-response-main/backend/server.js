@@ -11,6 +11,13 @@ import path from "path";
 import fetch from "node-fetch";
 import net from "net";
 import fs from "fs";
+import { fileURLToPath } from "url";
+import {
+  Registry,
+  collectDefaultMetrics,
+  Counter,
+  Histogram,
+} from "prom-client";
 // Simple shelter lookup function for coordinates
 const getShelterById = (id) => {
   const shelters = [
@@ -79,12 +86,64 @@ import Volunteer from "./routes/models/volunteer.js";
 import EmergencyAlert from "./routes/models/EmergencyAlert.js";
 import Emergency from "./routes/models/Emergency.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, ".env") });
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.resolve('./backend/uploads')));
+
+// --- Prometheus metrics ---
+const metricsRegistry = new Registry();
+metricsRegistry.setDefaultLabels({ app: "disaster-mgmt-backend" });
+collectDefaultMetrics({ register: metricsRegistry });
+
+const httpRequestCounter = new Counter({
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+  labelNames: ["method", "route", "status_code"],
+  registers: [metricsRegistry],
+});
+
+const httpRequestDuration = new Histogram({
+  name: "http_request_duration_seconds",
+  help: "HTTP request duration in seconds",
+  labelNames: ["method", "route", "status_code"],
+  buckets: [0.05, 0.1, 0.2, 0.5, 1, 2, 5],
+  registers: [metricsRegistry],
+});
+
+app.use((req, res, next) => {
+  if (req.path === "/metrics") {
+    return next();
+  }
+
+  const route = req.route?.path || req.path;
+  const endTimer = httpRequestDuration.startTimer({ method: req.method, route });
+
+  res.on("finish", () => {
+    const labels = {
+      method: req.method,
+      route,
+      status_code: String(res.statusCode),
+    };
+    httpRequestCounter.inc(labels);
+    endTimer({ status_code: String(res.statusCode) });
+  });
+
+  next();
+});
+
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', metricsRegistry.contentType);
+    res.end(await metricsRegistry.metrics());
+  } catch (error) {
+    res.status(500).end(error.message);
+  }
+});
 
 // Add a root route so Docker Desktop clicks show output
 app.get('/', (req, res) => {
@@ -111,27 +170,39 @@ mongoose
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || EMAIL_USER;
+const hasEmailCredentials =
+  typeof EMAIL_USER === "string" &&
+  EMAIL_USER.trim().length > 0 &&
+  !EMAIL_USER.includes("your-email") &&
+  typeof EMAIL_PASS === "string" &&
+  EMAIL_PASS.trim().length > 0 &&
+  !EMAIL_PASS.includes("your-16-digit-app-password");
 
 // IMPORTANT: Use service: 'gmail' for Gmail accounts
-const transporter = nodemailer.createTransport({
-  service: 'gmail', // This automatically sets correct host and port
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
-  },
-});
+let transporter = null;
+if (hasEmailCredentials) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail', // This automatically sets correct host and port
+    auth: {
+      user: EMAIL_USER,
+      pass: EMAIL_PASS,
+    },
+  });
 
-// Verify transporter on startup
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("❌ Email configuration error:", error.message);
-    console.error("⚠️  Please check:");
-    console.error("   1. EMAIL_USER is set correctly in .env");
-    console.error("   2. EMAIL_PASS is your App Password (not regular password)");
-  } else {
-    console.log("✅ Email server is ready to send messages");
-  }
-});
+  // Verify transporter on startup
+  transporter.verify((error) => {
+    if (error) {
+      console.error("❌ Email configuration error:", error.message);
+      console.error("⚠️  Please check:");
+      console.error("   1. EMAIL_USER is set correctly in backend/.env");
+      console.error("   2. EMAIL_PASS is your App Password (not regular password)");
+    } else {
+      console.log("✅ Email server is ready to send messages");
+    }
+  });
+} else {
+  console.log("⚠️ Email credentials not configured - email features disabled");
+}
 
 // --- Twilio client ---
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -1455,6 +1526,7 @@ const startServer = async () => {
       console.log(`👤 Admin email: ${ADMIN_EMAIL}`);
       console.log(`🔗 Socket.IO server ready for real-time updates`);
       console.log(`🔄 Server will automatically find available ports if needed`);
+      console.log(`📈 Prometheus metrics available at /metrics`);
       
       // Save current port to config file for frontend reference
       const serverConfig = {

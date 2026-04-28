@@ -7,6 +7,12 @@ scrape_configs:
       - targets: ['localhost:9090']
 
   - job_name: 'backend'
+    metrics_path: /metrics
     static_configs:
       # Target matches the docker service name and port
       - targets: ['backend:5000']
+
+  - job_name: 'jenkins'
+    metrics_path: /prometheus
+    static_configs:
+      - targets: ['jenkins:8080']
