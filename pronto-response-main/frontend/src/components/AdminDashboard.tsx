@@ -33,7 +33,7 @@ const districtsData = [
           ],
         },
         {
-          district: "Thoothukudi",
+          district: "Thoothu",
           shelters: [
             { id: 16, name: "Thoothukudi Relief Camp 1", address: "Beach Road, Thoothukudi", phone: "+91 7339486437", email: "thoothukudi1@example.com", location: { lat: 8.805, lng: 78.15 } },
             { id: 17, name: "Thoothukudi Relief Camp 2", address: "Old Harbor Area, Thoothukudi", phone: "+91 7339486437", email: "thoothukudi2@example.com", location: { lat: 8.81, lng: 78.145 } },
