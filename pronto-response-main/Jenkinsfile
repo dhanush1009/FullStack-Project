@@ -42,18 +42,23 @@ pipeline {
         //     }
         // }
 
-        stage('Deploy locally using Docker Compose') {
+stage('Deploy locally using Docker Compose') {
     steps {
         dir('pronto-response-main') {
             sh '''
             echo "Starting services..."
 
-            docker-compose down --remove-orphans || true
-            docker-compose up -d --build
+            # DO NOT stop Jenkins container
+            docker-compose stop frontend backend prometheus grafana || true
+            docker-compose rm -f frontend backend prometheus grafana || true
 
-            sleep 10
+            docker-compose up -d --build frontend backend prometheus grafana
+
+            sleep 15
 
             docker ps
+
+            echo "Deployment Done ✅"
             '''
         }
     }
