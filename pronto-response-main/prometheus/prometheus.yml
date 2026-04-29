@@ -19,6 +19,6 @@ scrape_configs:
     prometheus:
     image: prom/prometheus
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  - ./prometheus:/etc/prometheus
     ports:
       - "9090:9090"
