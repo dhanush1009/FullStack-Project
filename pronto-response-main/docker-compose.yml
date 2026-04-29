@@ -43,7 +43,6 @@ services:
     container_name: disaster-mgmt-prometheus
     depends_on:
       - backend
-      - jenkins
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
