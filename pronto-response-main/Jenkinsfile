@@ -66,9 +66,9 @@ stage('Deploy locally using Docker Compose') {
         stage('Verify Monitoring Endpoints') {
             steps {
                 echo 'Verifying backend and Prometheus endpoints...'
-                sh 'curl -fsS http://localhost:5000/api/health > /dev/null'
-                sh 'curl -fsS http://localhost:5000/metrics > /dev/null'
-                sh 'curl -fsS http://localhost:9090/-/healthy > /dev/null'
+                sh 'curl -fsS http://backend:5000/api/health > /dev/null'
+                sh 'curl -fsS http://backend:5000/metrics > /dev/null'
+                sh 'curl -fsS http://prometheus:9090/-/healthy > /dev/null'
             }
         }
     }
