@@ -49,8 +49,8 @@ stage('Deploy locally using Docker Compose') {
             echo "Starting services..."
 
             # DO NOT stop Jenkins container
-            docker-compose stop frontend backend prometheus grafana || true
-            docker-compose rm -f frontend backend prometheus grafana || true
+            docker-compose stop frontend backend prometheus grafana
+            docker-compose rm -f frontend backend prometheus grafana
 
             docker-compose up -d --build frontend backend prometheus grafana
 
