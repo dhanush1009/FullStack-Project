@@ -47,6 +47,12 @@ pipeline {
                 dir('pronto-response-main') {
                     echo 'Starting services...'
                     sh 'echo "MONGODB_URI=mongodb+srv://sdhanush1009_db_user:Dhanush%402005@cluster0.9f0wcxu.mongodb.net/Disaster-Management?retryWrites=true&w=majority&appName=Cluster0\nPORT=5000" > backend/.env'
+                    
+                    // Verify Prometheus config file exists as a regular file (not directory)
+                    sh 'test -f prometheus/prometheus.yml || { echo "ERROR: prometheus/prometheus.yml not found!"; exit 1; }'
+                    
+                    sh 'docker-compose down --remove-orphans || true'
+                    sh 'docker-compose rm -sf backend frontend prometheus grafana || true'
                     // Bring up app + monitoring stack. Jenkins itself is not recreated by this compose command.
                     sh 'docker-compose up -d --build --no-deps backend frontend prometheus grafana'
                 }
